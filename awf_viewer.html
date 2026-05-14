@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWF Viewer - Agent Workflow Format</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-950">
+  <div class="flex min-h-screen">
+    <!-- Left Navigation -->
+    <aside class="hidden w-72 shrink-0 border-r border-slate-200 bg-white p-5 lg:block">
+      <div class="mb-8 flex items-center gap-3">
+        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm font-bold">AWF</div>
+        <div>
+          <div class="font-semibold text-slate-950">AWF Viewer</div>
+          <div class="text-xs text-slate-500">Agent Workspace Format</div>
+        </div>
+      </div>
+
+      <div class="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+        <div class="rounded-xl bg-white px-3 py-2 text-sm text-slate-400 ring-1 ring-slate-200">Search events...</div>
+      </div>
+
+      <nav class="space-y-1" id="desktopNav">
+        <button data-tab="overview" class="nav-btn flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium transition active">
+          <span class="flex items-center gap-3">
+            <span class="w-5 text-center">✦</span>
+            Overview
+          </span>
+        </button>
+        <button data-tab="timeline" class="nav-btn flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+          <span class="flex items-center gap-3">
+            <span class="w-5 text-center">⌁</span>
+            Timeline
+          </span>
+        </button>
+        <button data-tab="questions" class="nav-btn flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+          <span class="flex items-center gap-3">
+            <span class="w-5 text-center">?</span>
+            Questions
+          </span>
+          <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">1</span>
+        </button>
+        <button data-tab="diffs" class="nav-btn flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+          <span class="flex items-center gap-3">
+            <span class="w-5 text-center">±</span>
+            Diffs
+          </span>
+        </button>
+        <button data-tab="decisions" class="nav-btn flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+          <span class="flex items-center gap-3">
+            <span class="w-5 text-center">◆</span>
+            Decisions
+          </span>
+        </button>
+        <button data-tab="events" class="nav-btn flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-sm font-medium transition text-slate-600 hover:bg-slate-100">
+          <span class="flex items-center gap-3">
+            <span class="w-5 text-center">{}</span>
+            Raw Events
+          </span>
+        </button>
+      </nav>
+
+      <div class="mt-8 rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-4">
+        <div class="text-sm font-medium text-slate-900">Last snapshot</div>
+        <div class="mt-2 text-xs text-slate-500">Refreshed 1s ago from .agents/</div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="min-w-0 flex-1">
+      <!-- Mobile Tabs -->
+      <div class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 p-3 backdrop-blur lg:hidden">
+        <div class="mb-3 flex items-center justify-between">
+          <div class="font-semibold text-slate-950">AWF Viewer</div>
+          <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">Live</span>
+        </div>
+        <div class="flex gap-2 overflow-x-auto" id="mobileNav">
+          <button data-tab="overview" class="mobile-nav-btn rounded-full px-3 py-1.5 text-xs font-medium capitalize active">overview</button>
+          <button data-tab="timeline" class="mobile-nav-btn rounded-full px-3 py-1.5 text-xs font-medium capitalize bg-slate-100 text-slate-600">timeline</button>
+          <button data-tab="questions" class="mobile-nav-btn rounded-full px-3 py-1.5 text-xs font-medium capitalize bg-slate-100 text-slate-600">questions</button>
+          <button data-tab="diffs" class="mobile-nav-btn rounded-full px-3 py-1.5 text-xs font-medium capitalize bg-slate-100 text-slate-600">diffs</button>
+          <button data-tab="decisions" class="mobile-nav-btn rounded-full px-3 py-1.5 text-xs font-medium capitalize bg-slate-100 text-slate-600">decisions</button>
+          <button data-tab="events" class="mobile-nav-btn rounded-full px-3 py-1.5 text-xs font-medium capitalize bg-slate-100 text-slate-600">events</button>
+        </div>
+      </div>
+
+      <div class="mx-auto max-w-7xl space-y-6 p-4 md:p-6 lg:p-8">
+        <!-- Run Summary -->
+        <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div class="flex flex-wrap items-start justify-between gap-5">
+            <div>
+              <div class="mb-3 flex flex-wrap items-center gap-2">
+                <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-100">AWF Run</span>
+                <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-100">Live snapshot</span>
+                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-100">1 blocked agent</span>
+              </div>
+              <h1 class="text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+                Implement AWF integration into workflow editor
+              </h1>
+              <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+                Filesystem-backed inspection layer for agent events, plans, decisions, staged diffs, artifacts, and human-in-the-loop questions.
+              </p>
+            </div>
+            <div class="flex shrink-0 items-end gap-2">
+              <div class="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-2 text-xs text-slate-600">
+                <span className="font-semibold">3</span> agents
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Overview Tab -->
+        <div id="overview-tab" class="tab-content">
+          <div class="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
+            <div class="space-y-6">
+              <!-- Agent Swimlanes -->
+              <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div class="mb-4 flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">⌁</div>
+                    <div>
+                      <h2 class="text-base font-semibold text-slate-950">Agent Swimlanes</h2>
+                      <p class="mt-1 text-sm text-slate-500">Event timeline per agent with status and lifecycle.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-4">
+                  <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <div class="mb-3 flex items-center gap-3">
+                      <div class="h-3 w-3 rounded-full bg-indigo-500"></div>
+                      <span class="font-medium text-slate-950">Coordinator</span>
+                      <span class="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700">running</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full bg-blue-100 px-3 py-1 border border-blue-200 text-xs text-blue-800">14:21:46 run.start</span>
+                      <span class="rounded-full bg-purple-100 px-3 py-1 border border-purple-200 text-xs text-purple-800">14:21:47 agent.spawn → refactor</span>
+                      <span class="rounded-full bg-purple-100 px-3 py-1 border border-purple-200 text-xs text-purple-800">14:21:48 agent.spawn → tests</span>
+                      <span class="rounded-full bg-slate-100 px-3 py-1 border border-slate-200 text-xs text-slate-700">14:22:20 waiting for children</span>
+                    </div>
+                  </div>
+                  <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <div class="mb-3 flex items-center gap-3">
+                      <div class="h-3 w-3 rounded-full bg-emerald-500"></div>
+                      <span class="font-medium text-slate-950">Code Refactor Agent</span>
+                      <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">success</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full bg-slate-100 px-3 py-1 border border-slate-200 text-xs text-slate-700">14:22:01 tool.call: grep</span>
+                      <span class="rounded-full bg-emerald-100 px-3 py-1 border border-emerald-200 text-xs text-emerald-800">14:22:05 decision</span>
+                      <span class="rounded-full bg-orange-100 px-3 py-1 border border-orange-200 text-xs text-orange-800">14:22:09 diff.staged</span>
+                      <span class="rounded-full bg-emerald-100 px-3 py-1 border border-emerald-200 text-xs text-emerald-800">14:22:16 complete</span>
+                    </div>
+                  </div>
+                  <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                    <div class="mb-3 flex items-center gap-3">
+                      <div class="h-3 w-3 rounded-full bg-amber-500"></div>
+                      <span class="font-medium text-slate-950">Test Engineer Agent</span>
+                      <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">blocked</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <span class="rounded-full bg-slate-100 px-3 py-1 border border-slate-200 text-xs text-slate-700">14:22:02 tool.call: inspect</span>
+                      <span class="rounded-full bg-blue-100 px-3 py-1 border border-blue-200 text-xs text-blue-800">14:22:06 plan.update</span>
+                      <span class="rounded-full bg-rose-100 px-3 py-1 border border-rose-200 text-xs text-rose-800">14:22:09 question.ask</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Timeline -->
+              <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm" id="timeline-section">
+                <div class="mb-4 flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">⏱</div>
+                    <div>
+                      <h2 class="text-base font-semibold text-slate-950">Timeline</h2>
+                      <p class="mt-1 text-sm text-slate-500">All events across all agents in chronological order.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-3" id="timeline-list"></div>
+              </section>
+            </div>
+
+            <div class="space-y-6">
+              <!-- Questions -->
+              <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm" id="questions-section">
+                <div class="mb-4 flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">?</div>
+                    <div>
+                      <h2 class="text-base font-semibold text-slate-950">Questions</h2>
+                      <p class="mt-1 text-sm text-slate-500">Blocking questions requiring human input to resume.</p>
+                    </div>
+                  </div>
+                  <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">1 pending</span>
+                </div>
+                <div class="space-y-3" id="questions-list"></div>
+              </section>
+
+              <!-- Diffs -->
+              <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm" id="diffs-section">
+                <div class="mb-4 flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">±</div>
+                    <div>
+                      <h2 class="text-base font-semibold text-slate-950">Diffs</h2>
+                      <p class="mt-1 text-sm text-slate-500">Staged patches from agent-driven refactoring.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="space-y-3" id="diffs-list"></div>
+              </section>
+            </div>
+          </div>
+
+          <!-- Decisions and Events on Overview -->
+          <div class="grid gap-6 xl:grid-cols-2">
+            <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm" id="decisions-section">
+              <div class="mb-4 flex items-start justify-between gap-4">
+                <div class="flex items-start gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">◆</div>
+                  <div>
+                    <h2 class="text-base font-semibold text-slate-950">Decisions</h2>
+                    <p class="mt-1 text-sm text-slate-500">Narrative decision log from decision events and decisions.md.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-3" id="decisions-list"></div>
+            </section>
+
+            <section class="rounded-3xl border border-slate-800 bg-slate-950 p-5 shadow-sm">
+              <div class="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <h2 class="text-base font-semibold text-white">events.jsonl Preview</h2>
+                  <p class="mt-1 text-sm text-slate-400">Append-only event log for the selected agent/run.</p>
+                </div>
+                <span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">read-only</span>
+              </div>
+              <div class="space-y-2 font-mono text-xs leading-6 text-slate-300">
+                <div class="flex gap-3 rounded-xl bg-slate-900 px-3 py-2">
+                  <span class="text-slate-600">1</span>
+                  <span class="truncate">{"type":"run.start","agentId":"orchestrator","payload":{"goal":"Implement AWF integration"}}</span>
+                </div>
+                <div class="flex gap-3 rounded-xl bg-slate-900 px-3 py-2">
+                  <span class="text-slate-600">2</span>
+                  <span class="truncate">{"type":"agent.spawn","agentId":"orchestrator","payload":{"childAgentId":"refactor"}}</span>
+                </div>
+                <div class="flex gap-3 rounded-xl bg-slate-900 px-3 py-2">
+                  <span class="text-slate-600">3</span>
+                  <span class="truncate">{"type":"tool.call","agentId":"refactor","payload":{"tool":"grep"}}</span>
+                </div>
+                <div class="flex gap-3 rounded-xl bg-slate-900 px-3 py-2">
+                  <span class="text-slate-600">4</span>
+                  <span class="truncate">{"type":"diff.staged","agentId":"refactor","payload":{"patchPath":"diffs/0001-add-awf-observer.patch"}}</span>
+                </div>
+                <div class="flex gap-3 rounded-xl bg-slate-900 px-3 py-2">
+                  <span class="text-slate-600">5</span>
+                  <span class="truncate">{"type":"question.ask","agentId":"tests","payload":{"blocking":true}}</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div id="timeline-tab" class="tab-content hidden">
+          <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-start justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">⏱</div>
+                <div>
+                  <h2 class="text-base font-semibold text-slate-950">Timeline</h2>
+                  <p class="mt-1 text-sm text-slate-500">All events across all agents in chronological order.</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-3" id="timeline-full-list"></div>
+          </section>
+        </div>
+
+        <!-- Questions Tab -->
+        <div id="questions-tab" class="tab-content hidden">
+          <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-start justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">?</div>
+                <div>
+                  <h2 class="text-base font-semibold text-slate-950">Questions</h2>
+                  <p class="mt-1 text-sm text-slate-500">Blocking questions requiring human input to resume.</p>
+                </div>
+              </div>
+              <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">1 pending</span>
+            </div>
+            <div class="space-y-3" id="questions-full-list"></div>
+          </section>
+        </div>
+
+        <!-- Diffs Tab -->
+        <div id="diffs-tab" class="tab-content hidden">
+          <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-start justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">±</div>
+                <div>
+                  <h2 class="text-base font-semibold text-slate-950">Diffs</h2>
+                  <p class="mt-1 text-sm text-slate-500">Staged patches from agent-driven refactoring.</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-3" id="diffs-full-list"></div>
+          </section>
+        </div>
+
+        <!-- Decisions Tab -->
+        <div id="decisions-tab" class="tab-content hidden">
+          <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-start justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-lg text-slate-700">◆</div>
+                <div>
+                  <h2 class="text-base font-semibold text-slate-950">Decisions</h2>
+                  <p class="mt-1 text-sm text-slate-500">Narrative decision log from decision events and decisions.md.</p>
+                </div>
+              </div>
+            </div>
+            <div class="space-y-3" id="decisions-full-list"></div>
+          </section>
+        </div>
+
+        <!-- Events Tab -->
+        <div id="events-tab" class="tab-content hidden">
+          <section class="rounded-3xl border border-slate-800 bg-slate-950 p-5 shadow-sm">
+            <div class="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-base font-semibold text-white">events.jsonl Preview</h2>
+                <p class="mt-1 text-sm text-slate-400">Append-only event log for the selected agent/run.</p>
+              </div>
+              <span class="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300">read-only</span>
+            </div>
+            <div class="space-y-2 font-mono text-xs leading-6 text-slate-300" id="events-full-list"></div>
+          </section>
+        </div>
+
+        <!-- Footer -->
+        <div class="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>✓ Snapshot loaded from <span class="font-mono text-slate-700">.agents/</span></div>
+            <div>⏸ 1 blocked agent requires human input</div>
+            <div>± Diffs are staged only</div>
+            <div>↺ Human answers resume workflow</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const timeline = [
+      { time: "14:21:46", agent: "orchestrator", type: "run.start", title: "Run started", detail: "Goal: Implement AWF integration into the existing workflow editor.", icon: "▶" },
+      { time: "14:21:47", agent: "orchestrator", type: "agent.spawn", title: "Spawned refactor agent", detail: "Refactor agent will add AWF writer hooks to the runtime boundary.", icon: "⑂" },
+      { time: "14:21:48", agent: "orchestrator", type: "agent.spawn", title: "Spawned tests agent", detail: "Tests agent will validate blocked question and resume behavior.", icon: "⑂" },
+      { time: "14:22:01", agent: "refactor", type: "tool.call", title: "Tool call: grep", detail: "Searching for workflow lifecycle hooks.", icon: "⌘" },
+      { time: "14:22:05", agent: "refactor", type: "decision", title: "Use observer boundary", detail: "Avoid scattering AWF writes through business logic.", icon: "◆" },
+      { time: "14:22:09", agent: "refactor", type: "diff.staged", title: "Staged patch", detail: "diffs/0001-add-awf-observer.patch", icon: "±" },
+      { time: "14:22:09", agent: "tests", type: "question.ask", title: "Blocking question", detail: "Mock runtime or use an in-memory workflow fixture?", icon: "?" }
+    ];
+
+    const diffs = [
+      { file: "src/runtime/observers/awf-observer.ts", patch: "0001-add-awf-observer.patch", added: 86, removed: 4, agent: "refactor", summary: "Adds workflow observer that records run, agent, tool, question, and diff events." },
+      { file: "src/runtime/workflow-runtime.ts", patch: "0002-wire-runtime-observer.patch", added: 32, removed: 2, agent: "refactor", summary: "Wires AWF observer into existing workflow lifecycle hooks." },
+      { file: "src/runtime/__tests__/awf-question-flow.test.ts", patch: "0003-question-flow-test.patch", added: 61, removed: 0, agent: "tests", summary: "Adds blocked question and answer-resume flow coverage." }
+    ];
+
+    const decisions = [
+      { agent: "refactor", title: "Use runtime observer instead of direct writes", rationale: "The workflow runtime already exposes lifecycle boundaries. AWF should subscribe at those boundaries instead of leaking persistence code into every agent.", alternatives: ["Direct writes from each node", "Replace workflow runtime"] },
+      { agent: "tests", title: "Test the question flow as a runtime concern", rationale: "Blocking questions affect execution, so tests should verify pause, answer, resume, and emitted events together.", alternatives: ["Only unit-test question JSON", "Skip human-in-loop for v0"] }
+    ];
+
+    function renderTimeline(elementId) {
+      const list = document.getElementById(elementId);
+      list.innerHTML = timeline.map(item => `
+        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex items-start gap-3 flex-1">
+              <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-sm font-medium text-slate-700 ring-1 ring-slate-200">${item.icon}</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-medium text-slate-950">${item.title}</div>
+                <p class="mt-1 text-sm text-slate-500">${item.detail}</p>
+                <div class="mt-2 flex items-center gap-2 text-xs text-slate-500">
+                  <span class="font-mono">${item.time}</span>
+                  <span>•</span>
+                  <span class="rounded-full bg-white px-2 py-0.5 ring-1 ring-slate-200">${item.agent}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDiffs(elementId) {
+      const list = document.getElementById(elementId);
+      list.innerHTML = diffs.map(diff => `
+        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="truncate font-mono text-sm font-medium text-slate-900">${diff.file}</div>
+              <p class="mt-2 text-sm text-slate-500">${diff.summary}</p>
+            </div>
+            <div class="flex shrink-0 items-center gap-2 text-xs">
+              <span class="rounded-full bg-emerald-50 px-2.5 py-1 font-medium text-emerald-700">+${diff.added}</span>
+              <span class="rounded-full bg-rose-50 px-2.5 py-1 font-medium text-rose-700">-${diff.removed}</span>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2">
+            <span class="font-mono text-xs text-slate-500">${diff.patch}</span>
+            <span class="text-xs text-slate-400">agent: ${diff.agent}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderDecisions(elementId) {
+      const list = document.getElementById(elementId);
+      list.innerHTML = decisions.map(decision => `
+        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="mb-2 flex items-center gap-2">
+            <span class="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">${decision.agent}</span>
+            <span class="text-xs text-slate-400">decision</span>
+          </div>
+          <h3 class="font-medium text-slate-950">${decision.title}</h3>
+          <p class="mt-2 text-sm leading-6 text-slate-500">${decision.rationale}</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            ${decision.alternatives.map(alt => `<span class="rounded-full bg-white px-3 py-1 text-xs text-slate-500 ring-1 ring-slate-200">${alt}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderQuestions(elementId) {
+      const list = document.getElementById(elementId);
+      list.innerHTML = `
+        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+          <div class="mb-3 flex items-center gap-2">
+            <span class="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">tests</span>
+            <span class="text-xs text-slate-400">pending</span>
+          </div>
+          <h3 class="font-medium text-slate-950">Should I mock the agent runtime or use an in-memory workflow fixture?</h3>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button class="rounded-lg bg-slate-950 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800">mock-runtime</button>
+            <button class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100">in-memory-fixture</button>
+          </div>
+          <div class="mt-3 text-xs text-slate-400 font-mono">q_01JAWFMOCK000000000000001</div>
+        </div>
+      `;
+    }
+
+    function renderEvents(elementId) {
+      const lines = [
+        '{"type":"run.start","agentId":"orchestrator","payload":{"goal":"Implement AWF integration"}}',
+        '{"type":"agent.spawn","agentId":"orchestrator","payload":{"childAgentId":"refactor"}}',
+        '{"type":"tool.call","agentId":"refactor","payload":{"tool":"grep"}}',
+        '{"type":"diff.staged","agentId":"refactor","payload":{"patchPath":"diffs/0001-add-awf-observer.patch"}}',
+        '{"type":"question.ask","agentId":"tests","payload":{"blocking":true}}'
+      ];
+      const list = document.getElementById(elementId);
+      list.innerHTML = lines.map((line, index) => `
+        <div class="flex gap-3 rounded-xl bg-slate-900 px-3 py-2">
+          <span class="text-slate-600">${index + 1}</span>
+          <span class="truncate">${line}</span>
+        </div>
+      `).join('');
+    }
+
+    // Render initial content
+    renderTimeline('timeline-list');
+    renderTimeline('timeline-full-list');
+    renderDiffs('diffs-list');
+    renderDiffs('diffs-full-list');
+    renderDecisions('decisions-list');
+    renderDecisions('decisions-full-list');
+    renderQuestions('questions-list');
+    renderQuestions('questions-full-list');
+    renderEvents('events-full-list');
+
+    // Tab switching
+    function switchTab(tabName) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+      document.getElementById(tabName + '-tab').classList.remove('hidden');
+
+      // Update desktop nav
+      document.querySelectorAll('#desktopNav .nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.add('bg-slate-950', 'text-white', 'shadow-sm');
+          btn.classList.remove('text-slate-600', 'hover:bg-slate-100');
+        } else {
+          btn.classList.remove('bg-slate-950', 'text-white', 'shadow-sm');
+          btn.classList.add('text-slate-600', 'hover:bg-slate-100');
+        }
+      });
+
+      // Update mobile nav
+      document.querySelectorAll('#mobileNav .mobile-nav-btn').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.add('bg-slate-950', 'text-white');
+          btn.classList.remove('bg-slate-100', 'text-slate-600');
+        } else {
+          btn.classList.remove('bg-slate-950', 'text-white');
+          btn.classList.add('bg-slate-100', 'text-slate-600');
+        }
+      });
+    }
+
+    // Add click handlers
+    document.querySelectorAll('[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+  </script>
+</body>
+</html>
