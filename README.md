@@ -1,0 +1,2 @@
+# AWF
+Agent Workspace Format
